@@ -1,0 +1,19 @@
+[project]
+name = "pymeteoswiss"
+version = "0.1.0"
+description = "Simple Python package to get time series from MeteoSwiss gridded data."
+readme = "README.md"
+authors = [
+    { name = "Raoul Collenteur", email = "raoul.collenteur@hydroconsult.ch" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "netcdf4>=1.7.4",
+    "pandas>=3.0.2",
+    "pyproj>=3.7.2",
+    "xarray>=2026.4.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.28,<0.10.0"]
+build-backend = "uv_build"
