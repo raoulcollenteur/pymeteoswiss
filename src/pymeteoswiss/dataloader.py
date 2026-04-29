@@ -59,7 +59,9 @@ def read_data(file_path, variable, x, y, names=None):
         to the `names` parameter and indexed by time.
 
     """
-    fnames = glob(os.path.join(file_path, f"{variable}**.zip"))
+    fnames = glob(os.path.join(file_path, f"**{variable}**.zip"))
+
+    print(f"Found {len(fnames)} files for variable '{variable}' in '{file_path}'.")
 
     # Convert floats to lists to allow for single coordinate input
     if isinstance(x, float) or isinstance(x, int):
