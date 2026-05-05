@@ -11,9 +11,9 @@ dependencies = [
     "h5netcdf>=1.8.1",
     "matplotlib>=3.10.9",
     "netcdf4>=1.7.4",
-    "pandas>=3.0.2",
+    "pandas>=2.2",
     "pyproj>=3.7.2",
-    "xarray>=2026.4.0",
+    "xarray>=2025.01.0",
 ]
 
 [build-system]
