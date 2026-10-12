@@ -1,5 +1,6 @@
 """Module to load data from the MeteoSwiss dataset."""
 
+from bisect import bisect_right
 from glob import glob
 import os
 from zipfile import ZipFile
@@ -32,6 +33,40 @@ def lat_lon_to_e_n(lat, lon):
     """
     pyproj_transformer = Transformer.from_crs("EPSG:4326", "EPSG:2056", always_xy=True)
     return pyproj_transformer.transform(lon, lat)
+
+
+def _coordinate_to_cell_index(coordinates, point):
+    """Return the grid-cell index containing a point for a 1D coordinate axis."""
+    values = list(coordinates)
+
+    if len(values) == 0:
+        raise ValueError("Grid coordinates cannot be empty")
+    if len(values) == 1:
+        return 0
+
+    descending = values[0] > values[-1]
+    ordered_values = values[::-1] if descending else values
+    midpoints = [
+        (left + right) / 2 for left, right in zip(ordered_values[:-1], ordered_values[1:])
+    ]
+
+    edges = [0.0] * (len(ordered_values) + 1)
+    edges[1:-1] = midpoints
+    edges[0] = ordered_values[0] - (midpoints[0] - ordered_values[0])
+    edges[-1] = ordered_values[-1] + (ordered_values[-1] - midpoints[-1])
+
+    if point < edges[0] or point > edges[-1]:
+        raise ValueError(
+            f"Point {point} lies outside the coordinate range "
+            f"[{edges[0]}, {edges[-1]}]"
+        )
+
+    index = bisect_right(edges, point) - 1
+    index = min(index, len(ordered_values) - 1)
+
+    if descending:
+        return len(values) - 1 - index
+    return index
 
 
 def read_data(file_path, variable, x, y, names=None):
@@ -81,12 +116,16 @@ def read_data(file_path, variable, x, y, names=None):
 
         for file in input_zip.namelist():
             df = open_dataset(input_zip.extract(file))
+            e_coordinates = df.coords["E"].values
+            n_coordinates = df.coords["N"].values
 
             data = {}
 
             for e, n, name in zip(x, y, names):
+                e_index = _coordinate_to_cell_index(e_coordinates, e)
+                n_index = _coordinate_to_cell_index(n_coordinates, n)
                 data[name] = (
-                    df.sel(E=e, N=n, method="nearest")
+                    df.isel(E=e_index, N=n_index)
                     .to_dataframe()[variable]
                     .squeeze()
                 )

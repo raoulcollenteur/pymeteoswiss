@@ -6,7 +6,8 @@ climate data.
 ## Features
 
 - Read MeteoSwiss zipped NetCDF archives from a local folder.
-- Extract one or more point time series with nearest-neighbor selection.
+- Extract one or more point time series by selecting the grid cell containing each
+	point.
 - Convert WGS84 latitude/longitude (EPSG:4326) to Swiss LV95 coordinates (EPSG:2056).
 - Return results as a `pandas.DataFrame` indexed by time.
 
